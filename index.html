@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title> GoLink Player</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Clappr script -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+
+    <!-- Custom CSS -->
+    <style>
+      body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #121212;
+    color: #e0e0e0;
+    overflow: hidden; /* Prevent body from scrolling */
+}
+
+#loading-screen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it's on top of everything else */
+}
+
+#content {
+    display: none; /* Hide content initially */
+}
+
+/* Existing styles */
+.container-fluid {
+    margin-top: 20px;
+}
+#heading {
+    text-align: center;
+    padding: 20px;
+    padding-top:5px;
+}
+.animated-heading {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align:top;
+    color: #bb86fc;
+    text-transform: uppercase;
+}
+
+@keyframes bounce-in-fwd {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.list-container {
+    padding: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background-color: #000;
+    scrollbar-width: thin;
+    scrollbar-color: #bb86fc #000;
+}
+.list-container::-webkit-scrollbar {
+    width: 8px;
+}
+.list-container::-webkit-scrollbar-track {
+    background: #000;
+}
+.list-container::-webkit-scrollbar-thumb {
+    background-color: #bb86fc;
+    border-radius: 10px;
+}
+.list-group-item {
+    background-color: #000 !important;
+    border: none;
+    margin-bottom: 5px;
+}
+.list-group-item a {
+    text-decoration: none;
+    color: #e0e0e0;
+    display: block;
+    padding: 10px 15px;
+    border: 1px solid #bb86fc;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+.list-group-item a:hover {
+    background-color: #bb86fc;
+    color: #121212;
+}
+#playlist {
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+#player-container {
+    height: calc(100vh - 200px); /* Adjust height based on your layout */
+    background: #000;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+    margin-left: 20px;
+    position: relative;
+    overflow: hidden;
+}
+#tv-screen {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border: 10px solid #333;
+    border-top-width: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+}
+#player {
+    width: 100%;
+    height: 100%;
+}
+
+
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 5px;
+    }
+    
+    .list-container {
+        padding: 0;
+        max-height: 65vh;
+		margin-top: 10px;
+		order: 2;
+    }
+    
+    #player-container {
+        width: 100%;
+        height: 35vh; /* Adjusted to fit within the viewport */
+        margin-top: 0;
+        margin-left: 0;
+		order: 1; /* Move to the top on mobile */
+    }
+
+    #playlist {
+        max-height: 55vh; /* Adjusted to fit within the viewport */
+    }
+
+    .animated-heading {
+        font-size: 1.5rem;
+    }
+}
+    </style>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://raw.githubusercontent.com/pratikkarbhal/Web-IPTV/main/live.gif" type="image/gif">
+
+</head>
+<body>
+<div id="loading-screen">
+    <img src="https://raw.githubusercontent.com/pratikkarbhal/Web-IPTV/main/loading.gif" alt="Loading...">
+</div>
+<div class="container-fluid" id="content">
+    <div class="row">
+        <div class="col-md-4 list-container">
+            <ul id="playlist" class="list-group">
+                <!-- Playlist items will be inserted here by JavaScript -->
+            </ul>
+        </div>
+        <div class="col-md-8">
+            <div id="heading"><span class="animated-heading"><img src="https://raw.githubusercontent.com/pratikkarbhal/Web-IPTV/main/live.gif" alt="live logo" class="logo" width="4%">GoLink Player</span><span>@ Create by FinFolio Suite Projects</span></div>
+            <div id="player-container">
+                <div id="tv-screen">
+                    <div id="player"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom JavaScript -->
+<!--<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Define a playlist of YouTube video links
+      const youtubeLinks = [
+        { title: "Bleesings", url: "https://www.youtube.com/watch?v=d_UE7xgNOzM&list=RDgkwzl8J5nWU&index=27" },
+        { title: "Worship", url: "https://www.youtube.com/watch?v=SuQWzw2qcmo&list=RDgkwzl8J5nWU&index=25" },
+        { title: "Praises", url: "https://www.youtube.com/watch?v=MVahyOJNSMc&list=RDgkwzl8J5nWU&index=20" },
+      ];
+  
+      const playlist = document.getElementById('playlist');
+      let firstStreamUrl = null;
+  
+      // Populate the playlist
+      youtubeLinks.forEach((video, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.innerHTML = `<a href="#" data-url="${video.url}">${video.title}</a>`;
+        playlist.appendChild(listItem);
+  
+        // Set the first stream URL
+        if (index === 0) {
+          firstStreamUrl = video.url;
+        }
+      });
+  
+      // Play the first stream by default
+      if (firstStreamUrl) {
+        playStream(firstStreamUrl);
+      }
+  
+      playlist.addEventListener('click', function (event) {
+        event.preventDefault();
+        if (event.target && event.target.nodeName === 'A') {
+          const streamUrl = event.target.getAttribute('data-url');
+          playStream(streamUrl);
+        }
+      });
+  
+      // Hide the loading screen after at least 1 second
+      setTimeout(function () {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+      }, 1800);
+  
+      // Create a single instance of the player
+      const playerElement = document.getElementById('player');
+      const player = new Clappr.Player({
+        parentId: "#player",
+        width: '100%',
+        height: '100%',
+        autoPlay: true,
+        mediacontrol: { seekbar: "#bb86fc", buttons: "#e0e0e0" },
+        mute: false,
+        plugins: [Clappr.Youtube], // Include the YouTube plugin
+      });
+  
+      // Function to play a stream
+  function playStream(url) {
+    player.load(url);
+  }
+
+  // Play the first stream by default after the player is initialized
+  if (firstStreamUrl) {
+    playStream(firstStreamUrl);
+  }
+
+  // Handle playlist item clicks
+  playlist.addEventListener('click', function (event) {
+    event.preventDefault();
+    if (event.target && event.target.nodeName === 'A') {
+      const streamUrl = event.target.getAttribute('data-url');
+      playStream(streamUrl);
+    }
+  });
+
+  // Hide the loading screen after at least 1 second
+  setTimeout(function () {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }, 1800);
+});
+  </script>-->
+  
+<script>
+   document.addEventListener('DOMContentLoaded', function () {
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby8jDZyM4jodylguNojd6pUehmGcPEvk0SAlbidPIi8iyhnlHVnKxcgIXHA_pYB5SnB/exec';
+        const playlist = document.getElementById('playlist');
+        let player = null;
+        let currentStreamUrl = null;
+
+        function fetchAndUpdatePlaylist() {
+            fetch(scriptURL)
+                .then(response => response.json())
+                .then(data => {
+                    const currentItems = new Set([...playlist.querySelectorAll('a')].map(a => a.getAttribute('data-url')));
+
+                    // Update playlist only if there's a change
+                    const newItems = new Set(data.map(item => item.url));
+                    if (areSetsEqual(currentItems, newItems)) return;
+
+                    playlist.innerHTML = ''; // Clear current playlist
+                    data.forEach((item, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'list-group-item';
+                        listItem.innerHTML = `<a href="#" data-url="${item.url}">${item.title}</a>`;
+                        playlist.appendChild(listItem);
+
+                        // Auto-play the first stream if no current stream is set
+                        if (index === 0 && currentStreamUrl === null) {
+                            playStream(item.url);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching playlist:', error));
+        }
+
+        function playStream(url) {
+            if (url === currentStreamUrl) return; // Avoid reloading the same stream
+            if (!player) {
+                player = new Clappr.Player({
+                    parentId: "#player",
+                    width: '100%',
+                    height: '100%',
+                    autoPlay: true,
+                    mute: false,
+                });
+            }
+            player.load(url);
+            currentStreamUrl = url;
+
+        }
+
+        function areSetsEqual(setA, setB) {
+            if (setA.size !== setB.size) return false;
+            for (const item of setA) if (!setB.has(item)) return false;
+            return true;
+        }
+
+        // Handle playlist clicks
+        playlist.addEventListener('click', event => {
+            event.preventDefault();
+            const url = event.target.getAttribute('data-url');
+            if (url) {
+                playStream(url);
+            }
+        });
+
+        // Periodically update playlist
+        setInterval(fetchAndUpdatePlaylist, 3000); // Fetch every 3 seconds
+
+        // Initial fetch
+        fetchAndUpdatePlaylist();
+
+        // Hide loading screen and show content
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }, 1800);
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/clappr-youtube-plugin@latest/dist/clappr-youtube-plugin.min.js"></script>
+
+</body>
+</html>
