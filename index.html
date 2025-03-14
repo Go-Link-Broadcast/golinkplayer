@@ -278,19 +278,16 @@
   </script>-->
   
 <script>
-      const scriptURL = 'https://script.google.com/macros/s/AKfycby8jDZyM4jodylguNojd6pUehmGcPEvk0SAlbidPIi8iyhnlHVnKxcgIXHA_pYB5SnB/exec';
+   document.addEventListener('DOMContentLoaded', function () {
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby8jDZyM4jodylguNojd6pUehmGcPEvk0SAlbidPIi8iyhnlHVnKxcgIXHA_pYB5SnB/exec';
+        const playlist = document.getElementById('playlist');
+        let player = null;
+        let currentStreamUrl = null;
 
-function fetchAndUpdatePlaylist() {
-    fetch(scriptURL)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new TypeError("Received non-JSON response");
-            }
-            return response.json();
-        })
-        .then(data => {
+        function fetchAndUpdatePlaylist() {
+            fetch(scriptURL)
+                .then(response => response.json())
+                .then(data => {
                     const currentItems = new Set([...playlist.querySelectorAll('a')].map(a => a.getAttribute('data-url')));
 
                     // Update playlist only if there's a change
@@ -322,12 +319,11 @@ function fetchAndUpdatePlaylist() {
                     height: '100%',
                     autoPlay: true,
                     mute: false,
-                    plugins: [Clappr.Youtube], // Add YouTube plugin here
-                    youtubeDisableCustomUI: true // Optional: Disable YouTube's native controls
                 });
             }
             player.load(url);
             currentStreamUrl = url;
+
         }
 
         function areSetsEqual(setA, setB) {
