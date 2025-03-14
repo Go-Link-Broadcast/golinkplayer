@@ -278,8 +278,8 @@
   </script>-->
   
 <script>
-   document.addEventListener('DOMContentLoaded', function () {
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby8jDZyM4jodylguNojd6pUehmGcPEvk0SAlbidPIi8iyhnlHVnKxcgIXHA_pYB5SnB/exec';
+      document.addEventListener('DOMContentLoaded', function () {
+        const scriptURL = 'AKfycby8jDZyM4jodylguNojd6pUehmGcPEvk0SAlbidPIi8iyhnlHVnKxcgIXHA_pYB5SnB/exec';
         const playlist = document.getElementById('playlist');
         let player = null;
         let currentStreamUrl = null;
@@ -319,11 +319,12 @@
                     height: '100%',
                     autoPlay: true,
                     mute: false,
+                    plugins: [Clappr.Youtube], // Add YouTube plugin here
+                    youtubeDisableCustomUI: true // Optional: Disable YouTube's native controls
                 });
             }
             player.load(url);
             currentStreamUrl = url;
-
         }
 
         function areSetsEqual(setA, setB) {
